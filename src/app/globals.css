@@ -16,6 +16,31 @@
   }
 }
 
+.image{
+  width: auto;
+  height: auto;
+}
+
+.border-color{
+  border: solid 2px #047F73;
+}
+.border-tab{
+  border: solid 1px #E5E7E9;
+}
+.back-color{
+  background-color: rgba(230, 232, 235);
+}
+
+.opacity {
+  background: rgba(20, 20, 20, 0.7);
+}
+
+body {
+  margin: 0rem;
+  padding: 0rem;
+  
+}
+/*
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
@@ -25,3 +50,4 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+*/
