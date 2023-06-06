@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {app} from '../../firebase';
-import { ref, set, child, get } from "firebase/database";
+import { ref, set, onValue} from "firebase/database";
 
 export default function Registro(props) {
     const router = useRouter();
@@ -19,6 +19,7 @@ export default function Registro(props) {
     const [not, setNot] = useState('');
     const [ga, setGa] = useState('');
     const [hor, setHor] = useState('');
+    const [cor, setCor] = useState('');
 
     function captarCambios(e){
         e.preventDefault();
@@ -29,8 +30,8 @@ export default function Registro(props) {
         function GetDatos(){
             let correo = props.email.toString().replace("@walshp.com.pe","")
             console.log(correo)
-            const dbRef = ref(app);
-            get(child(dbRef, `Staff/${correo}`)).then((snapshot) => {
+            const starCountRef = ref(app, `Staff/${correo}`);
+            onValue(starCountRef, (snapshot) => {
                 if (snapshot.exists()) {
                     setNom(snapshot.val().Nombres)
                     setApe(snapshot.val().Apellidos)
@@ -39,11 +40,10 @@ export default function Registro(props) {
                     setAr(snapshot.val().Area)
                     setCar(snapshot.val().Cargo)
                     setDni(snapshot.val().Dni)
+                    setCor(correo)
               } else {
                 console.log("No data available");
               }
-            }).catch((error) => {
-              console.error(error);
             });
           }
         return GetDatos();
@@ -116,13 +116,16 @@ export default function Registro(props) {
     async function entrada(e){
         e.preventDefault();
         let hoy = new Date();
+        let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getMinutes() >= 10? hoy.getHours() + ':' + hoy.getMinutes():hoy.getHours() + ':' + '0' + hoy.getMinutes()
-        set(ref(app, 'Entrada/' + dni), {
+        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
+        let printHora = hora + ':' + minutos
+        set(ref(app, 'Entrada/' + id + '-' +  cor + '-' + Math.random().toString(30).substring(2)), {
             Nombres: nom,
             Apellidos: ape,
             Fecha: fecha,
-            Hora: hora,
+            Hora: printHora,
             Dni: dni,
             Cargo: car,
             Area: ar,
@@ -130,20 +133,23 @@ export default function Registro(props) {
         });
         setNot('Su hora de entrada al teletrabajo se registró correctamente a las:')
         setGa('¡Gracias!')
-        setHor(hora)
+        setHor(printHora)
         setAlert(false)
     }
 
     async function salida(e){
         e.preventDefault();
         let hoy = new Date();
+        let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getMinutes() >= 10? hoy.getHours() + ':' + hoy.getMinutes():hoy.getHours() + ':' + '0' + hoy.getMinutes()
-        set(ref(app, 'Salida/' + dni), {
+        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
+        let printHora = hora + ':' + minutos
+        set(ref(app, 'Salida/' + id + '-' + cor + '-' + Math.random().toString(30).substring(2)), {
             Nombres: nom,
             Apellidos: ape,
             Fecha: fecha,
-            Hora: hora,
+            Hora: printHora,
             Dni: dni,
             Cargo: car,
             Area: ar,
@@ -151,20 +157,23 @@ export default function Registro(props) {
             });
         setNot('Su hora de salida del teletrabajo se registró correctamente a las:')
         setGa('¡Gracias!')
-        setHor(hora)
+        setHor(printHora)
         setAlert(false)
     }
 
     async function salidaA(e){
         e.preventDefault();
         let hoy = new Date();
+        let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getMinutes() >= 10? hoy.getHours() + ':' + hoy.getMinutes():hoy.getHours() + ':' + '0' + hoy.getMinutes()
-        set(ref(app, 'SalidaA/' + dni), {
+        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
+        let printHora = hora + ':' + minutos
+        set(ref(app, 'SalidaA/' + id + '-' + cor + '-' + Math.random().toString(30).substring(2)), {
             Nombres: nom,
             Apellidos: ape,
             Fecha: fecha,
-            Hora: hora,
+            Hora: printHora,
             Dni: dni,
             Cargo: car,
             Area: ar,
@@ -172,20 +181,23 @@ export default function Registro(props) {
             });
         setNot('Su hora de salida al refrigerio se registró correctamente a las:')
         setGa('¡Gracias!')
-        setHor(hora)
+        setHor(printHora)
         setAlert(false)
     }
 
     async function retornoA(e){
         e.preventDefault();
         let hoy = new Date();
+        let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getMinutes() >= 10? hoy.getHours() + ':' + hoy.getMinutes():hoy.getHours() + ':' + '0' + hoy.getMinutes()
-        set(ref(app, 'RetornoA/' + dni), {
+        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
+        let printHora = hora + ':' + minutos
+        set(ref(app, 'RetornoA/' + id + '-' + cor + '-' + Math.random().toString(30).substring(2)), {
             Nombres: nom,
             Apellidos: ape,
             Fecha: fecha,
-            Hora: hora,
+            Hora: printHora,
             Dni: dni,
             Cargo: car,
             Area: ar,
@@ -193,7 +205,7 @@ export default function Registro(props) {
             });
         setNot('Su hora de retorno del refrigerio se registró correctamente a las:')
         setGa('¡Gracias!')
-        setHor(hora)
+        setHor(printHora)
         setAlert(false)
     }
 }
