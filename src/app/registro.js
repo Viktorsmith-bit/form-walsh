@@ -29,7 +29,6 @@ export default function Registro(props) {
     useEffect(()=>{
         function GetDatos(){
             let correo = props.email.toString().replace("@walshp.com.pe","")
-            console.log(correo)
             const starCountRef = ref(app, `Staff/${correo}`);
             onValue(starCountRef, (snapshot) => {
                 if (snapshot.exists()) {
@@ -121,6 +120,7 @@ export default function Registro(props) {
         let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
         let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
         let printHora = hora + ':' + minutos
+        console.log(ent.toString().slice(0,2))
         set(ref(app, 'Entrada/' + id + '-' +  cor + '-' + Math.random().toString(30).substring(2)), {
             Nombres: nom,
             Apellidos: ape,
@@ -129,7 +129,7 @@ export default function Registro(props) {
             Dni: dni,
             Cargo: car,
             Area: ar,
-            Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > (parseInt(sad.toString().slice(0,2))*60 + parseInt(sad.toString().slice(3,5)) + 10)? 'Si':'No'
+            Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > (parseInt(ent.toString().slice(0,2))*60 + parseInt(ent.toString().slice(3,5)) + 10)? 'Si':'No'
         });
         setNot('Su hora de entrada al teletrabajo se registró correctamente a las:')
         setGa('¡Gracias!')
@@ -219,7 +219,7 @@ function Alert(props){
                 <svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" fill="#45805E" className="bi bi-check-circle-fill" viewBox="0 0 16 16">
                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                 </svg>
-                <div className=''>
+                <div className='section'>
                     <h1 className='text-sm lg:text-base text-center'>{props.ga}</h1>
                     <h1 className='text-sm lg:text-base text-center'>{props.not}</h1>
                     <h1 className='text-sm lg:text-base text-center'>{props.hor}</h1>
