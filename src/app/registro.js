@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {app} from '../../firebase';
-import { ref, set, onValue} from "firebase/database";
+import { ref, set, onValue, child, get} from "firebase/database";
 
 export default function Registro(props) {
     const router = useRouter();
-    const [alert, setAlert] = useState(true)
+    const [alert, setAlert] = useState(false)
+    const [alertDo, setAlertDo] = useState(false)
+    const [alertRA, setAlertRA] = useState(false)
     const [state, setState] = useState('');
     const [nom, setNom] = useState('');
     const [ape, setApe] = useState('');
@@ -20,6 +22,11 @@ export default function Registro(props) {
     const [ga, setGa] = useState('');
     const [hor, setHor] = useState('');
     const [cor, setCor] = useState('');
+    const [notify, setNotify] = useState(false);
+    const [horaE, setHoraE] = useState('');
+    const [horaSA, setHoraSA] = useState('');
+    const [horaRA, setHoraRA] = useState('');
+    const [horaS, setHoraS] = useState('');
 
     function captarCambios(e){
         e.preventDefault();
@@ -48,14 +55,93 @@ export default function Registro(props) {
         return GetDatos();
     }, [])
 
+    useEffect(()=>{
+        function GetDatos(){
+            let correo = props.email.toString().replace("@walshp.com.pe","")
+            let hoy = new Date();
+            let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
+            const starCountRef = ref(app, `registro/entrada/${id}-${correo}`);
+            onValue(starCountRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    setHoraE(snapshot.val().Hora)
+                } else {
+                    setHoraE('')
+                }
+            });
+          }
+        return GetDatos();
+    }, [])
+
+    useEffect(()=>{
+        function GetDatos(){
+            let correo = props.email.toString().replace("@walshp.com.pe","")
+            let hoy = new Date();
+            let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
+            const starCountRef = ref(app, `registro/salida/${id}-${correo}`);
+            onValue(starCountRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    setHoraS(snapshot.val().Hora)
+                } else {
+                    setHoraS('')
+                }
+            });
+          }
+        return GetDatos();
+    }, [])
+
+    useEffect(()=>{
+        function GetDatos(){
+            let correo = props.email.toString().replace("@walshp.com.pe","")
+            let hoy = new Date();
+            let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
+            const starCountRef = ref(app, `registro/salidaA/${id}-${correo}`);
+            onValue(starCountRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    setHoraSA(snapshot.val().Hora)
+                } else {
+                    setHoraSA('')
+                }
+            });
+          }
+        return GetDatos();
+    }, [])
+
+    useEffect(()=>{
+        function GetDatos(){
+            let correo = props.email.toString().replace("@walshp.com.pe","")
+            let hoy = new Date();
+            let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
+            const starCountRef = ref(app, `registro/retornoA/${id}-${correo}`);
+            onValue(starCountRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    setHoraRA(snapshot.val().Hora)
+                } else {
+                    setHoraRA('')
+
+                }
+            });
+          }
+        return GetDatos();
+    }, [])
+
+    
     function closeAlert(e){
         e.preventDefault();
-        setAlert(true)
-      }
+        setAlert(false)
+    }
+
+    function closeAlertDo(e){
+        e.preventDefault();
+        setAlertDo(false)
+    }
+    function closeAlertRA(e){
+        e.preventDefault();
+        setAlertRA(false)
+    }
 
     return (
         <div className='flex  items-center justify-center py-10 lg:py-20 2xl:h-screen'>
-            <div className='flex-1 max-w-lg px-4 lg:px-0'>
+            <div className='flex-1 max-w-xl px-4 lg:px-0'>
                 <form className='p-4 shadow-md border border-gray-300 bg-white rounded-md'>
                     <div className='flex justify-center w-full'>
                         <Image src='/Logo_Walsh_Version_Corporativa.png' className='image' width={230} height={100} alt='Walsh Perú' priority/>
@@ -68,7 +154,7 @@ export default function Registro(props) {
                         <option value="salida">4. Salida del teletrabajo</option>
                     </select>
                     <h1 className='flex gap-1 text-sm h-6 mt-2'><span className='flex items-center'>*</span>Por favor, verifique sus datos antes de registrar su hora.</h1>
-                    <div className='flex flex-wrap gap-3 mt-10'>
+                    <div className='flex flex-wrap gap-3 mt-5'>
                         <div className='w-full lg:flex-1'>
                             <h1 className='text-sm'>Nombres</h1>
                             <input className='h-10 px-3 rounded-md text-sm border border-gray-300 mt-2 w-full back-color' placeholder={nom} disabled/>
@@ -94,7 +180,22 @@ export default function Registro(props) {
                             <input className='h-10 px-3 rounded-md text-sm border border-gray-300 mt-2 w-full back-color' placeholder={car} disabled/>
                         </div>
                     </div>
-                    <div className='flex flex-wrap gap-3 justify-center w-full mt-10'>
+                    <div className='p-4 border border-gray-300 mt-5 rounded-md'>
+                        <h1 className='text-sm underline'>Historial del registro de horas</h1>
+                        <div className={`flex gap-1 mt-2 ${horaE == ''?'hidden':'block'}`}>
+                            <h1 className='text-sm'>1. Hora de entrada al teletrabajo: <span className='font-bold'>{horaE} {(parseInt(horaE.toString().slice(0,2))*60 + parseInt(horaE.toString().slice(3,5))) <= 720?'a.m.':'p.m.'}</span></h1>
+                        </div>
+                        <div className={`flex gap-1 mt-2 ${horaSA == ''?'hidden':'block'}`}>
+                            <h1 className='text-sm'>2. Hora de salida al refrigerio: <span className='font-bold'>{horaSA} {(parseInt(horaSA.toString().slice(0,2))*60 + parseInt(horaSA.toString().slice(3,5))) >= 720?'p.m.':'a.m.'}</span></h1>
+                        </div>
+                        <div className={`flex gap-1 mt-2 ${horaRA == ''?'hidden':'block'}`}>
+                            <h1 className='text-sm'>3. Hora de retorno del refrigerio: <span className='font-bold'>{horaRA} {(parseInt(horaRA.toString().slice(0,2))*60 + parseInt(horaRA.toString().slice(3,5))) >= 720?'p.m.':'a.m.'}</span></h1>
+                        </div>
+                        <div className={`flex gap-1 mt-2 ${horaS == ''?'hidden':'block'}`}>
+                            <h1 className='text-sm'>4. Hora de salida del teletrabajo: <span className='font-bold'>{horaS} {(parseInt(horaS.toString().slice(0,2))*60 + parseInt(horaS.toString().slice(3,5))) >= 720?'p.m.':'a.m.'}</span></h1>
+                        </div>
+                    </div>
+                    <div className='flex flex-wrap gap-3 justify-center w-full mt-5'>
                         {
                             state === 'entrada'?<button onClick={entrada} className='text-sm w-full back-color h-10 rounded-md text-center cursor-pointer hover:animate-pulse w-full border border-gray-300 text-white' style={{backgroundColor:'rgb(69, 128, 94)'}}>Marcar entrada al teletrabajo</button>:
                             state === 'horaA'?<button onClick={salidaA} className='text-sm w-full back-color h-10 rounded-md text-center cursor-pointer hover:animate-pulse w-full border border-gray-300 text-white' style={{backgroundColor:'rgb(69, 128, 94)'}}>Marcar salida al refrigerio</button>:
@@ -106,7 +207,13 @@ export default function Registro(props) {
                     </div>
                 </form>
                 {
-                    alert?null:<Alert not={not} ga={ga} hor={hor} closeAlert={closeAlert} />
+                    !alert?null:<Alert not={not} ga={ga} hor={hor} closeAlert={closeAlert} />
+                }
+                {
+                    !alertDo?null:<AlertDouble notify={notify} closeAlertDo={closeAlertDo} />
+                }
+                {
+                    !alertRA?null:<AlertRetornoA alertRA={alertRA} closeAlertRA={closeAlertRA} />
                 }
             </div>
         </div>
@@ -117,24 +224,38 @@ export default function Registro(props) {
         let hoy = new Date();
         let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let hora = hoy.getHours() > 10? hoy.getHours() : '0' + hoy.getHours()
         let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
         let printHora = hora + ':' + minutos
-        console.log(ent.toString().slice(0,2))
-        set(ref(app, 'Entrada/' + id + '-' +  cor + '-' + Math.random().toString(30).substring(2)), {
-            Nombres: nom,
-            Apellidos: ape,
-            Fecha: fecha,
-            Hora: printHora,
-            Dni: dni,
-            Cargo: car,
-            Area: ar,
-            Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > (parseInt(ent.toString().slice(0,2))*60 + parseInt(ent.toString().slice(3,5)) + 10)? 'Si':'No'
-        });
-        setNot('Su hora de entrada al teletrabajo se registró correctamente a las:')
-        setGa('¡Gracias!')
-        setHor(printHora)
-        setAlert(false)
+        
+        const starCountRef = ref(app);
+        get(child(starCountRef, 'registro/' + 'entrada/' + id + '-' + cor)).then((snapshot) => {
+            if (snapshot.exists()) {
+                setNotify('hora de entrada al teletrabajo')
+                setAlertDo(true)
+            } else {
+                set(ref(app, 'registro/' + 'entrada/' + id + '-' + cor), {
+                    Nombres: nom,
+                    Apellidos: ape,
+                    Fecha: fecha,
+                    Hora: printHora,
+                    Dni: dni,
+                    Cargo: car,
+                    Area: ar,
+                    Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > (parseInt(ent.toString().slice(0,2))*60 + parseInt(ent.toString().slice(3,5)) + 10)? 'Si':'No'
+                })
+                setNot('hora de entrada al teletrabajo')
+                setGa('a.m.')
+                setHor(printHora)
+                setHoraE(printHora)
+                setHoraS('')
+                setHoraSA('')
+                setHoraRA('')
+                setAlert(true)
+            }
+          }).catch((error) => {
+            console.error(error);
+          });
     }
 
     async function salida(e){
@@ -142,23 +263,35 @@ export default function Registro(props) {
         let hoy = new Date();
         let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let hora = hoy.getHours() >= 10? hoy.getHours() : '0' + hoy.getHours()
         let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
         let printHora = hora + ':' + minutos
-        set(ref(app, 'Salida/' + id + '-' + cor + '-' + Math.random().toString(30).substring(2)), {
-            Nombres: nom,
-            Apellidos: ape,
-            Fecha: fecha,
-            Hora: printHora,
-            Dni: dni,
-            Cargo: car,
-            Area: ar,
-            Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > (parseInt(sad.toString().slice(0,2))*60 + parseInt(sad.toString().slice(3,5)))? 'Si':'No'
-            });
-        setNot('Su hora de salida del teletrabajo se registró correctamente a las:')
-        setGa('¡Gracias!')
-        setHor(printHora)
-        setAlert(false)
+        
+        const starCountRef = ref(app);
+        get(child(starCountRef, 'registro/' + 'salida/' + id + '-' + cor)).then((snapshot) => {
+            if (snapshot.exists()) {
+                setNotify('hora de salida del teletrabajo')
+                setAlertDo(true)
+            } else {
+                set(ref(app, 'registro/' + 'salida/' + id + '-' + cor), {
+                    Nombres: nom,
+                    Apellidos: ape,
+                    Fecha: fecha,
+                    Hora: printHora,
+                    Dni: dni,
+                    Cargo: car,
+                    Area: ar,
+                    Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > (parseInt(sad.toString().slice(0,2))*60 + parseInt(sad.toString().slice(3,5)))? 'Si':'No'
+                })
+                setNot('hora de salida del teletrabajo')
+                setGa('p.m.')
+                setHor(printHora)
+                setHoraS(printHora)
+                setAlert(true)
+            }
+          }).catch((error) => {
+            console.error(error);
+          });
     }
 
     async function salidaA(e){
@@ -166,23 +299,35 @@ export default function Registro(props) {
         let hoy = new Date();
         let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let hora = hoy.getHours() >= 10? hoy.getHours() : '0' + hoy.getHours()
         let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
         let printHora = hora + ':' + minutos
-        set(ref(app, 'SalidaA/' + id + '-' + cor + '-' + Math.random().toString(30).substring(2)), {
-            Nombres: nom,
-            Apellidos: ape,
-            Fecha: fecha,
-            Hora: printHora,
-            Dni: dni,
-            Cargo: car,
-            Area: ar,
-            Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > 780? 'Si':'No'
-            });
-        setNot('Su hora de salida al refrigerio se registró correctamente a las:')
-        setGa('¡Gracias!')
-        setHor(printHora)
-        setAlert(false)
+
+        const starCountRef = ref(app);
+        get(child(starCountRef, 'registro/' + 'salidaA/' + id + '-' + cor)).then((snapshot) => {
+            if (snapshot.exists()) {
+                setNotify('hora de salida al refrigerio')
+                setAlertDo(true)
+            } else {
+                set(ref(app, 'registro/' + 'salidaA/' + id + '-' + cor), {
+                    Nombres: nom,
+                    Apellidos: ape,
+                    Fecha: fecha,
+                    Hora: printHora,
+                    Dni: dni,
+                    Cargo: car,
+                    Area: ar,
+                    Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > 780? 'Si':'No'
+                })
+                setNot('hora de salida al refrigerio')
+                setGa('p.m.')
+                setHor(printHora)
+                setHoraSA(printHora)
+                setAlert(true)
+            }
+          }).catch((error) => {
+            console.error(error);
+          });
     }
 
     async function retornoA(e){
@@ -190,23 +335,42 @@ export default function Registro(props) {
         let hoy = new Date();
         let id = hoy.getDate().toString() + ( hoy.getMonth() + 1 ).toString() + hoy.getFullYear().toString();
         let fecha = hoy.getDate() + '-' + ( hoy.getMonth() + 1 ) + '-' + hoy.getFullYear();
-        let hora = hoy.getHours() >= 12? hoy.getHours() : '0' + hoy.getHours()
+        let hora = hoy.getHours() >= 10? hoy.getHours() : '0' + hoy.getHours()
         let minutos = hoy.getMinutes() >= 10? hoy.getMinutes() : '0' + hoy.getMinutes() 
         let printHora = hora + ':' + minutos
-        set(ref(app, 'RetornoA/' + id + '-' + cor + '-' + Math.random().toString(30).substring(2)), {
-            Nombres: nom,
-            Apellidos: ape,
-            Fecha: fecha,
-            Hora: printHora,
-            Dni: dni,
-            Cargo: car,
-            Area: ar,
-            Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > 840? 'Si':'No'
-            });
-        setNot('Su hora de retorno del refrigerio se registró correctamente a las:')
-        setGa('¡Gracias!')
-        setHor(printHora)
-        setAlert(false)
+        let horaRetorno = horaSA.toString().slice(0,2);
+        let minutosRetorno = horaSA.toString().slice(3,5);
+        let printRetorno = parseInt(horaRetorno)*60 + parseInt(minutosRetorno);
+
+        const starCountRef = ref(app);
+        if(parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes()) - printRetorno >= 40){
+            get(child(starCountRef, 'registro/' + 'retornoA/' + id + '-' + cor)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    setNotify('hora de retorno del refrigerio')
+                    setAlertDo(true)
+                } else {
+                    set(ref(app, 'registro/' + 'retornoA/' + id + '-' + cor), {
+                        Nombres: nom,
+                        Apellidos: ape,
+                        Fecha: fecha,
+                        Hora: printHora,
+                        Dni: dni,
+                        Cargo: car,
+                        Area: ar,
+                        Tarde: (parseInt(hoy.getHours())*60 + parseInt(hoy.getMinutes())) > 840? 'Si':'No'
+                    })
+                    setNot('hora de retorno del refrigerio')
+                    setGa('p.m.')
+                    setHor(printHora)
+                    setHoraRA(printHora)
+                    setAlert(true)
+                }
+              }).catch((error) => {
+                console.error(error);
+              });
+        }else{
+            setAlertRA(true)
+        }
     }
 }
 
@@ -214,18 +378,54 @@ function Alert(props){
     return(
       <div className='absolute top-0 left-0 h-screen '>
         <div className='fixed flex items-center justify-center h-screen opacity w-full px-4 md:px-0 lg:px-0'>
-            <div className='flex flex-col items-center rounded-md border border-gray-300 p-5 max-w-md bg-white'>
-            <div className='flex items-center gap-5'>
+            <div className='flex items-center rounded-md border border-gray-300 p-5 max-w-md bg-white'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" fill="#45805E" className="bi bi-check-circle-fill" viewBox="0 0 16 16">
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
                 </svg>
-                <div className='section'>
-                    <h1 className='text-sm lg:text-base text-center'>{props.ga}</h1>
-                    <h1 className='text-sm lg:text-base text-center'>{props.not}</h1>
-                    <h1 className='text-sm lg:text-base text-center'>{props.hor}</h1>
+                <div className='flex flex-col items-center gap-3'>
+                    <h1 className='text-sm lg:text-base text-center'>Su <span className='font-bold'>{props.not}</span> se registró satisfactoriamente a las: <span className='font-bold'>{props.hor} {(parseInt(props.hor.toString().slice(0,2))*60 + parseInt(props.hor.toString().slice(3,5))) <= 720?'a.m.':'p.m.'}</span></h1>
+                    <h1 className='text-center'>¡Gracias!</h1>
+                    <button onClick={props.closeAlert} className='py-2 px-4 border border-gray-300 rounded-md back-color text-sm lg:text-base'>Aceptar</button>
+                </div>
+                
+            </div>
+        </div>
+      </div>
+    );
+}
+
+function AlertDouble(props){
+    return(
+      <div className='absolute top-0 left-0 h-screen '>
+        <div className='fixed flex items-center justify-center h-screen opacity w-full px-4 md:px-0 lg:px-0'>
+            <div className='flex items-center rounded-md border border-gray-300 p-5 max-w-md bg-white'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" fill="#E74C3C" className="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                </svg>
+                <div className='flex flex-col items-center gap-3'>
+                    <h1 className='text-sm lg:text-base text-center'>Su <span className='font-bold'>{props.notify}</span> ya ha sido registrada. Si se trata de un error, por favor, comunicarse con la <span className='underline'>Gerencia de Recursos Humanos</span>.</h1>
+                    <h1 className='text-center'>¡Gracias!</h1>
+                    <button onClick={props.closeAlertDo} className='py-2 px-4 border border-gray-300 rounded-md back-color text-sm lg:text-base'>Aceptar</button>
                 </div>
             </div>
-                <button onClick={props.closeAlert} className='py-2 px-4 border border-gray-300 rounded-md back-color text-sm lg:text-base mt-2'>Aceptar</button>
+        </div>
+      </div>
+    );
+}
+
+function AlertRetornoA(props){
+    return(
+      <div className='absolute top-0 left-0 h-screen '>
+        <div className='fixed flex items-center justify-center h-screen opacity w-full px-4 md:px-0 lg:px-0'>
+            <div className='flex items-center rounded-md border border-gray-300 p-5 max-w-md bg-white'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" fill="#E74C3C" className="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                </svg>
+                <div className='flex flex-col items-center gap-3'>
+                    <h1 className='text-sm lg:text-base text-center'>El tiempo mínimo para el <span className='font-bold'>refrigerio</span> es de 45 minutos, no podrá ingresar su hora de retorno mientras este sea menor.</h1>
+                    <h1 className='text-center'>¡Gracias!</h1>
+                    <button onClick={props.closeAlertRA} className='py-2 px-4 border border-gray-300 rounded-md back-color text-sm lg:text-base'>Aceptar</button>
+                </div>
             </div>
         </div>
       </div>

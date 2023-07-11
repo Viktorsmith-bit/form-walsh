@@ -66,7 +66,7 @@ export default function Home(props) {
     <Fragment>
       {
         email === '' &&  <div className='flex items-center justify-center h-screen px-4 lg:px-0' >
-          <div className='flex-1 max-w-lg border border-gray-200 rounded-md p-4 shadow-md bg-white'>
+          <div className='flex-1 max-w-xl border border-gray-200 rounded-md p-4 shadow-md bg-white'>
             <div className='flex justify-center w-full'>
               <Image src='/Logo_Walsh_Version_Corporativa.png' className='image' width={230} height={100} alt='Walsh Perú' priority/>
             </div>
