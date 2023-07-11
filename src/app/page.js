@@ -120,7 +120,7 @@ export default function Home(props) {
             <Link href={"/restablecer"}>
                 <button className='py-2 back-color mt-2 w-full border border-gray-300 rounded-md text-sm'>Restablecer contraseña</button>
               </Link>
-            <h1 className='text-xs mt-4 text-gray-400 text-center'>ReGIS v.2.0 </h1>
+            <h1 className='text-xs mt-4 text-gray-400 text-center'>ReGIS v.2.5 </h1>
             <h1 className='text-xs text-gray-400 text-center'>Web application developed by Gerencia de SIG e Innovación - Walsh Perú - 2023</h1>
           </div>
         </div>
